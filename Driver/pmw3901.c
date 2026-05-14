@@ -1,22 +1,33 @@
 #include "pmw3901.h"
 #include "bsp_spi.h"
+#include "bsp_timer.h"
+#include <string.h>
 
-#define PMW3901_CS_LOW()      GPIO_ResetBits(GPIOB, GPIO_Pin_0)
-#define PMW3901_CS_HIGH()     GPIO_SetBits(GPIOB, GPIO_Pin_0)
+#define PMW3901_CS_LOW()      GPIO_ResetBits(PMW3901_CS_PORT, PMW3901_CS_PIN)
+#define PMW3901_CS_HIGH()     GPIO_SetBits(PMW3901_CS_PORT, PMW3901_CS_PIN)
 
-#define PMW3901_RST_LOW()     GPIO_ResetBits(GPIOB, GPIO_Pin_1)
-#define PMW3901_RST_HIGH()    GPIO_SetBits(GPIOB, GPIO_Pin_1)
+#define PMW3901_RST_LOW()     GPIO_ResetBits(PMW3901_RST_PORT, PMW3901_RST_PIN)
+#define PMW3901_RST_HIGH()    GPIO_SetBits(PMW3901_RST_PORT, PMW3901_RST_PIN)
 
-static void PMW3901_Delay(volatile uint32_t t)
+/* ç²—ç•¥ us å»¶æ—¶ã€‚F407 168MHz ä¸‹åä¿å®ˆï¼Œè°ƒä¼ æ„Ÿå™¨è¶³å¤Ÿã€‚ */
+static void PMW3901_DelayCycle(volatile uint32_t t)
 {
-    while (t--);
+    while (t--) {
+        __NOP();
+    }
 }
 
-static void PMW3901_DelayMs(uint32_t ms)
+static void PMW3901_DelayUs(uint32_t us)
 {
-    while (ms--)
-    {
-        PMW3901_Delay(84000);
+    while (us--) {
+        PMW3901_DelayCycle(28U);
+    }
+}
+
+static void PMW3901_DelayMs_Blocking(uint32_t ms)
+{
+    while (ms--) {
+        PMW3901_DelayUs(1000U);
     }
 }
 
@@ -24,14 +35,14 @@ void PMW3901_GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(PMW3901_GPIO_RCC, ENABLE);
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_Pin = PMW3901_CS_PIN | PMW3901_RST_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_Init(PMW3901_CS_PORT, &GPIO_InitStructure);
 
     PMW3901_CS_HIGH();
     PMW3901_RST_HIGH();
@@ -39,20 +50,22 @@ void PMW3901_GPIO_Init(void)
 
 uint8_t PMW3901_ReadReg(uint8_t reg)
 {
-    uint8_t data;
+    uint8_t data = 0xFF;
 
     PMW3901_CS_LOW();
-    PMW3901_Delay(100);
+    PMW3901_DelayUs(5U);
 
-    SPI1_ReadWriteByte(reg & 0x7F);
+    (void)SPI1_ReadWriteByte(reg & 0x7FU);
 
-    PMW3901_Delay(100);
+    /* PMW3901 tSRAD ä¿å®ˆæ‹‰é•¿ï¼Œé¿å…è¯»åˆ° 0xFF */
+    PMW3901_DelayUs(160U);
 
-    data = SPI1_ReadWriteByte(0x00);
+    data = SPI1_ReadWriteByte(0x00U);
 
     PMW3901_CS_HIGH();
 
-    PMW3901_Delay(100);
+    /* tSRW / tSRR ä¿å®ˆé—´éš” */
+    PMW3901_DelayUs(30U);
 
     return data;
 }
@@ -60,54 +73,30 @@ uint8_t PMW3901_ReadReg(uint8_t reg)
 void PMW3901_WriteReg(uint8_t reg, uint8_t data)
 {
     PMW3901_CS_LOW();
-    PMW3901_Delay(100);
+    PMW3901_DelayUs(5U);
 
-    SPI1_ReadWriteByte(reg | 0x80);
-    SPI1_ReadWriteByte(data);
+    (void)SPI1_ReadWriteByte(reg | 0x80U);
+    (void)SPI1_ReadWriteByte(data);
 
     PMW3901_CS_HIGH();
 
-    PMW3901_Delay(100);
+    /* å†™å¯„å­˜å™¨åŽéœ€è¦é—´éš”ï¼Œè°ƒè¯•é˜¶æ®µä¿å®ˆä¸€ç‚¹ */
+    PMW3901_DelayUs(60U);
 }
 
 uint8_t PMW3901_ReadID(void)
 {
-    return PMW3901_ReadReg(PMW3901_PRODUCT_ID);
+    return PMW3901_ReadReg(PMW3901_REG_PRODUCT_ID);
 }
 
-uint8_t PMW3901_Init(void)
+uint8_t PMW3901_ReadRevisionID(void)
 {
-    uint8_t id;
+    return PMW3901_ReadReg(PMW3901_REG_REVISION_ID);
+}
 
-    PMW3901_GPIO_Init();
-    SPI1_Init();
-
-    PMW3901_CS_HIGH();
-
-    PMW3901_RST_LOW();
-    PMW3901_DelayMs(10);
-    PMW3901_RST_HIGH();
-    PMW3901_DelayMs(50);
-
-    id = PMW3901_ReadID();
-
-    if (id != 0x49)
-    {
-        return 0;
-    }
-
-    /* Power-up reset */
-    PMW3901_WriteReg(0x3A, 0x5A);
-    PMW3901_DelayMs(5);
-
-    /* Çå³ýÒ»´ÎÔË¶¯¼Ä´æÆ÷ */
-    PMW3901_ReadReg(0x02);
-    PMW3901_ReadReg(0x03);
-    PMW3901_ReadReg(0x04);
-    PMW3901_ReadReg(0x05);
-    PMW3901_ReadReg(0x06);
-
-    /* PMW3901 ³õÊ¼»¯¼Ä´æÆ÷ÐòÁÐ */
+/* PixArt/å¼€æºé©±åŠ¨å¸¸è§åˆå§‹åŒ–åºåˆ—ï¼Œå…ˆç…§ä½ ç»™çš„è®¾è®¡ä¿ç•™ã€‚ */
+static void PMW3901_LoadInitRegisters(void)
+{
     PMW3901_WriteReg(0x7F, 0x00);
     PMW3901_WriteReg(0x55, 0x01);
     PMW3901_WriteReg(0x50, 0x07);
@@ -121,9 +110,10 @@ uint8_t PMW3901_Init(void)
     PMW3901_WriteReg(0x55, 0x00);
 
     PMW3901_WriteReg(0x7F, 0x0E);
-    PMW3901_ReadReg(0x67);
+    (void)PMW3901_ReadReg(0x67);
     PMW3901_WriteReg(0x48, 0x0C);
     PMW3901_WriteReg(0x6F, 0x06);
+
     PMW3901_WriteReg(0x7F, 0x00);
     PMW3901_WriteReg(0x5B, 0xA0);
     PMW3901_WriteReg(0x4E, 0xA8);
@@ -140,6 +130,7 @@ uint8_t PMW3901_Init(void)
     PMW3901_WriteReg(0x45, 0x14);
     PMW3901_WriteReg(0x5F, 0x34);
     PMW3901_WriteReg(0x7B, 0x08);
+
     PMW3901_WriteReg(0x7F, 0x00);
     PMW3901_WriteReg(0x5B, 0x80);
     PMW3901_WriteReg(0x5C, 0x80);
@@ -154,47 +145,129 @@ uint8_t PMW3901_Init(void)
 
     PMW3901_WriteReg(0x7F, 0x00);
     PMW3901_WriteReg(0x7F, 0x00);
+}
 
-    PMW3901_DelayMs(10);
+uint8_t PMW3901_Init(void)
+{
+    uint8_t id;
+
+    PMW3901_GPIO_Init();
+    SPI1_Init();
+
+    PMW3901_CS_HIGH();
+
+    PMW3901_RST_LOW();
+    PMW3901_DelayMs_Blocking(10U);
+    PMW3901_RST_HIGH();
+    PMW3901_DelayMs_Blocking(50U);
+
+    id = PMW3901_ReadID();
+    if (id != PMW3901_PRODUCT_ID_VALUE) {
+        return PMW3901_FAIL;
+    }
+
+    /* Power-up reset */
+    PMW3901_WriteReg(PMW3901_REG_POWER_UP_RESET, 0x5AU);
+    PMW3901_DelayMs_Blocking(5U);
+
+    /* æ¸…ä¸€æ¬¡ motion å¯„å­˜å™¨ */
+    (void)PMW3901_ReadReg(PMW3901_REG_MOTION);
+    (void)PMW3901_ReadReg(PMW3901_REG_DELTA_X_L);
+    (void)PMW3901_ReadReg(PMW3901_REG_DELTA_X_H);
+    (void)PMW3901_ReadReg(PMW3901_REG_DELTA_Y_L);
+    (void)PMW3901_ReadReg(PMW3901_REG_DELTA_Y_H);
+
+    PMW3901_LoadInitRegisters();
+
+    PMW3901_DelayMs_Blocking(10U);
+
+    return PMW3901_OK;
+}
+
+static void PMW3901_ParseBurst(const uint8_t *buf, pmw3901_t *flow)
+{
+    if (buf == 0 || flow == 0) {
+        return;
+    }
+
+    flow->motion = buf[0];
+
+    flow->dx = (int16_t)((((uint16_t)buf[3]) << 8) | (uint16_t)buf[2]);
+    flow->dy = (int16_t)((((uint16_t)buf[5]) << 8) | (uint16_t)buf[4]);
+
+    flow->quality = buf[6];
+
+    flow->motion_detected = (buf[0] & 0x80U) ? 1U : 0U;
+    flow->overflow = (buf[0] & 0x10U) ? 1U : 0U;
+
+    flow->shutter = (uint16_t)((((uint16_t)buf[10]) << 8) | (uint16_t)buf[11]);
+
+    flow->stamp_ms = GetTick();
+    flow->valid = 1U;
+}
+
+static uint8_t PMW3901_RawAllFF(const uint8_t *buf, uint8_t len)
+{
+    uint8_t i;
+
+    if (buf == 0) {
+        return 1;
+    }
+
+    for (i = 0; i < len; i++) {
+        if (buf[i] != 0xFFU) {
+            return 0;
+        }
+    }
 
     return 1;
 }
 
-uint8_t PMW3901_ReadMotion(pmw3901_t *flow)
+uint8_t PMW3901_ReadMotionBurst_Blocking(pmw3901_t *flow, uint8_t raw[12])
 {
     uint8_t buf[12];
     uint8_t i;
 
-    if (flow == 0)
-        return 0;
+    if (flow == 0) {
+        return PMW3901_FAIL;
+    }
 
     PMW3901_CS_LOW();
-    PMW3901_Delay(100);
+    PMW3901_DelayUs(5U);
 
-    SPI1_ReadWriteByte(PMW3901_MOTION_BURST & 0x7F);
+    (void)SPI1_ReadWriteByte(PMW3901_REG_MOTION_BURST & 0x7FU);
 
-    PMW3901_Delay(500);
+    /* burst read çš„ tSRAD ä¿å®ˆç­‰å¾… */
+    PMW3901_DelayUs(160U);
 
-    for (i = 0; i < 12; i++)
-    {
-        buf[i] = SPI1_ReadWriteByte(0x00);
+    for (i = 0; i < 12U; i++) {
+        buf[i] = SPI1_ReadWriteByte(0x00U);
     }
 
     PMW3901_CS_HIGH();
-    PMW3901_Delay(100);
+    PMW3901_DelayUs(30U);
 
-    flow->motion = buf[0];
+    if (raw != 0) {
+        for (i = 0; i < 12U; i++) {
+            raw[i] = buf[i];
+        }
+    }
 
-    flow->dx = (int16_t)((buf[3] << 8) | buf[2]);
-    flow->dy = (int16_t)((buf[5] << 8) | buf[4]);
+    if (PMW3901_RawAllFF(buf, 12U)) {
+        flow->valid = 0U;
+        return PMW3901_FAIL;
+    }
 
-    flow->quality = buf[6];
-
-    return 1;
+    PMW3901_ParseBurst(buf, flow);
+    return PMW3901_OK;
 }
-/* ================= PMW3901 Async Motion Burst ================= */
 
-extern uint32_t GetTick(void);
+uint8_t PMW3901_ReadMotion(pmw3901_t *flow)
+{
+    return PMW3901_ReadMotionBurst_Blocking(flow, 0);
+}
+
+/* ================= PMW3901 Async Motion Burst ================= */
 
 typedef enum
 {
@@ -220,68 +293,62 @@ static volatile uint8_t pmw3901_dma_done = 0;
 static volatile uint8_t pmw3901_dma_status = 0;
 static volatile uint8_t pmw3901_motion_done = 0;
 
-static uint32_t pmw3901_wait_tick = 0;
+static uint32_t pmw3901_state_tick = 0;
 
 static void PMW3901_DMA_DoneCallback(void *ctx, uint8_t status)
 {
     (void)ctx;
 
-    /*
-     * ×¢Òâ£ºÕâÊÇÔÚ DMA ÖÐ¶ÏÀïµ÷ÓÃµÄ¡£
-     * ÖÐ¶ÏÀï²»Òª¼ÌÐøÆô¶¯ÏÂÒ»´Î SPI£¬Ö»ÖÃ±êÖ¾¡£
-     */
+    /* DMA ä¸­æ–­ä¸Šä¸‹æ–‡ï¼šåªç½®æ ‡å¿—ï¼Œä¸åšä¸‹ä¸€æ¬¡ä¼ è¾“ï¼Œä¸æ‰“å° */
     pmw3901_dma_status = status;
-    pmw3901_dma_done = 1;
+    pmw3901_dma_done = 1U;
 }
 
 uint8_t PMW3901_ReadMotion_Async(pmw3901_t *flow)
 {
     if (flow == 0) {
-        return 0;
+        return PMW3901_FAIL;
     }
 
     if (pmw3901_async_state != PMW3901_ASYNC_IDLE &&
         pmw3901_async_state != PMW3901_ASYNC_DONE &&
         pmw3901_async_state != PMW3901_ASYNC_ERROR)
     {
-        return 0;
+        return PMW3901_FAIL;
     }
 
     if (SPI1_IsBusy()) {
-        return 0;
+        return PMW3901_FAIL;
     }
 
     pmw3901_async_flow = flow;
-    pmw3901_motion_done = 0;
-    pmw3901_dma_done = 0;
-    pmw3901_dma_status = 0;
+    pmw3901_motion_done = 0U;
+    pmw3901_dma_done = 0U;
+    pmw3901_dma_status = 0U;
 
-    pmw3901_cmd_tx[0] = PMW3901_MOTION_BURST & 0x7F;
-    pmw3901_cmd_rx[0] = 0x00;
+    pmw3901_cmd_tx[0] = PMW3901_REG_MOTION_BURST & 0x7FU;
+    pmw3901_cmd_rx[0] = 0x00U;
 
     PMW3901_CS_LOW();
+    PMW3901_DelayUs(5U);
 
-    /*
-     * ÑÏ¸ñÎÞ×èÈû£º
-     * ÕâÀï²»ÔÙÓÃ SPI1_ReadWriteByte()
-     * Ò²²»ÔÙÓÃ PMW3901_Delay()
-     * ÃüÁî×Ö 0x16 Ò²×ß DMA Òì²½·¢ËÍ¡£
-     */
     if (SPI1_TransferAsync_DMA(pmw3901_cmd_tx,
                                pmw3901_cmd_rx,
-                               1,
+                               1U,
                                PMW3901_DMA_DoneCallback,
-                               0) == 0)
+                               0) == 0U)
     {
         PMW3901_CS_HIGH();
         pmw3901_async_state = PMW3901_ASYNC_ERROR;
-        return 0;
+        return PMW3901_FAIL;
     }
 
+    pmw3901_state_tick = GetTick();
     pmw3901_async_state = PMW3901_ASYNC_CMD_BUSY;
 
-    return 1;
+    return PMW3901_OK;
 }
+
 void PMW3901_Task(void)
 {
     uint8_t i;
@@ -290,11 +357,17 @@ void PMW3901_Task(void)
     {
         case PMW3901_ASYNC_CMD_BUSY:
         {
+            if ((GetTick() - pmw3901_state_tick) > 5U) {
+                PMW3901_CS_HIGH();
+                pmw3901_async_state = PMW3901_ASYNC_ERROR;
+                break;
+            }
+
             if (pmw3901_dma_done)
             {
-                pmw3901_dma_done = 0;
+                pmw3901_dma_done = 0U;
 
-                if (pmw3901_dma_status != 0)
+                if (pmw3901_dma_status != 0U)
                 {
                     PMW3901_CS_HIGH();
                     pmw3901_async_state = PMW3901_ASYNC_ERROR;
@@ -302,11 +375,10 @@ void PMW3901_Task(void)
                 }
 
                 /*
-                 * ÃüÁî 0x16 ÒÑ¾­·¢Íê¡£
-                 * ²»ÓÃ PMW3901_Delay(500)£¬¸Ä³É GetTick ·Ç×èÈûµÈ´ý¡£
-                 * ÏÈÓÃ 1ms£¬ÎÈ¶¨ÓÅÏÈ¡£
+                 * PMW3901 burst command åŽéœ€è¦ç­‰å¾… tSRADã€‚
+                 * GetTick åªæœ‰ 1ms ç²’åº¦ï¼Œæ‰€ä»¥ç”¨ 1msï¼Œç¨³å®šä¼˜å…ˆã€‚
                  */
-                pmw3901_wait_tick = GetTick();
+                pmw3901_state_tick = GetTick();
                 pmw3901_async_state = PMW3901_ASYNC_WAIT_GAP;
             }
             break;
@@ -314,38 +386,32 @@ void PMW3901_Task(void)
 
         case PMW3901_ASYNC_WAIT_GAP:
         {
-            /*
-             * ·Ç×èÈûµÈ´ý burst ÃüÁîºÍÊý¾Ý¶ÁÈ¡Ö®¼äµÄ¼ä¸ô¡£
-             * ÕâÀï²»»á¿¨×¡ CPU£¬Ö÷Ñ­»·¿ÉÒÔ¼ÌÐøÅÜÆäËûÈÎÎñ¡£
-             */
-            if ((GetTick() - pmw3901_wait_tick) >= 1)
+            if ((GetTick() - pmw3901_state_tick) >= 1U)
             {
                 if (SPI1_IsBusy()) {
                     break;
                 }
 
-                for (i = 0; i < 12; i++) {
-                    pmw3901_dummy_tx[i] = 0x00;
-                    pmw3901_burst_rx[i] = 0x00;
+                for (i = 0; i < 12U; i++) {
+                    pmw3901_dummy_tx[i] = 0x00U;
+                    pmw3901_burst_rx[i] = 0x00U;
                 }
 
-                pmw3901_dma_done = 0;
-                pmw3901_dma_status = 0;
+                pmw3901_dma_done = 0U;
+                pmw3901_dma_status = 0U;
 
-                /*
-                 * DMA Òì²½¶ÁÈ¡ 12 ×Ö½Ú motion burst Êý¾Ý¡£
-                 */
                 if (SPI1_TransferAsync_DMA(pmw3901_dummy_tx,
                                            pmw3901_burst_rx,
-                                           12,
+                                           12U,
                                            PMW3901_DMA_DoneCallback,
-                                           0) == 0)
+                                           0) == 0U)
                 {
                     PMW3901_CS_HIGH();
                     pmw3901_async_state = PMW3901_ASYNC_ERROR;
                 }
                 else
                 {
+                    pmw3901_state_tick = GetTick();
                     pmw3901_async_state = PMW3901_ASYNC_READ_BUSY;
                 }
             }
@@ -354,34 +420,33 @@ void PMW3901_Task(void)
 
         case PMW3901_ASYNC_READ_BUSY:
         {
+            if ((GetTick() - pmw3901_state_tick) > 5U) {
+                PMW3901_CS_HIGH();
+                pmw3901_async_state = PMW3901_ASYNC_ERROR;
+                break;
+            }
+
             if (pmw3901_dma_done)
             {
-                pmw3901_dma_done = 0;
+                pmw3901_dma_done = 0U;
 
                 PMW3901_CS_HIGH();
 
-                if (pmw3901_dma_status != 0)
+                if (pmw3901_dma_status != 0U)
                 {
                     pmw3901_async_state = PMW3901_ASYNC_ERROR;
                     break;
                 }
 
-                if (pmw3901_async_flow != 0)
-                {
-                    pmw3901_async_flow->motion = pmw3901_burst_rx[0];
-
-                    pmw3901_async_flow->dx =
-                        (int16_t)((pmw3901_burst_rx[3] << 8) |
-                                   pmw3901_burst_rx[2]);
-
-                    pmw3901_async_flow->dy =
-                        (int16_t)((pmw3901_burst_rx[5] << 8) |
-                                   pmw3901_burst_rx[4]);
-
-                    pmw3901_async_flow->quality = pmw3901_burst_rx[6];
+                if (pmw3901_async_flow != 0) {
+                    if (!PMW3901_RawAllFF(pmw3901_burst_rx, 12U)) {
+                        PMW3901_ParseBurst(pmw3901_burst_rx, pmw3901_async_flow);
+                    } else {
+                        pmw3901_async_flow->valid = 0U;
+                    }
                 }
 
-                pmw3901_motion_done = 1;
+                pmw3901_motion_done = 1U;
                 pmw3901_async_state = PMW3901_ASYNC_DONE;
             }
             break;
@@ -399,12 +464,12 @@ uint8_t PMW3901_ReadMotion_IsDone(void)
 {
     if (pmw3901_motion_done)
     {
-        pmw3901_motion_done = 0;
+        pmw3901_motion_done = 0U;
         pmw3901_async_state = PMW3901_ASYNC_IDLE;
-        return 1;
+        return 1U;
     }
 
-    return 0;
+    return 0U;
 }
 
 uint8_t PMW3901_IsBusy(void)
@@ -413,6 +478,7 @@ uint8_t PMW3901_IsBusy(void)
             pmw3901_async_state == PMW3901_ASYNC_WAIT_GAP ||
             pmw3901_async_state == PMW3901_ASYNC_READ_BUSY);
 }
+
 void PMW3901_GetAsyncRaw(uint8_t *buf)
 {
     uint8_t i;
@@ -421,7 +487,7 @@ void PMW3901_GetAsyncRaw(uint8_t *buf)
         return;
     }
 
-    for (i = 0; i < 12; i++) {
+    for (i = 0; i < 12U; i++) {
         buf[i] = pmw3901_burst_rx[i];
     }
 }

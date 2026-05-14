@@ -162,6 +162,17 @@ void DMA1_Stream7_IRQHandler(void)
 
 
 
+#include "bsp_spi.h"
+
+void DMA2_Stream0_IRQHandler(void)
+{
+    SPI1_DMA_IRQHandler_RX();
+}
+
+void DMA2_Stream3_IRQHandler(void)
+{
+    SPI1_DMA_IRQHandler_TX();
+}
 
 
 

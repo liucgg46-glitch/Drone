@@ -38,3 +38,4 @@
 .\objects\stm32f4xx_it.o: .\System\bsp_timer.h
 .\objects\stm32f4xx_it.o: .\BSP\bsp_uart.h
 .\objects\stm32f4xx_it.o: .\BSP\bsp_i2c.h
+.\objects\stm32f4xx_it.o: .\BSP\bsp_spi.h

@@ -48,3 +48,5 @@
 .\objects\main.o: .\Driver\bmp280.h
 .\objects\main.o: .\Middleware\app_bmp280_task.h
 .\objects\main.o: .\Middleware\app_vl53l1x_task.h
+.\objects\main.o: .\Middleware\app_pmw3901_task.h
+.\objects\main.o: .\Driver\pmw3901.h
