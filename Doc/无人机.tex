@@ -1,0 +1,143 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\geometry{a4paper, margin=1in}
+
+\title{无人机视觉巡线任务进度总结}
+\author{STM32 + K210 系统}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{整体进度概览}
+
+本项目已完成从底层驱动搭建到视觉通信联调的全部基础工作，K210与STM32之间已实现稳定、无阻塞的二进制协议传输。以下按开发顺序汇总各项工作的完成情况。
+
+\begin{itemize}
+    \item \textbf{6.1 搭建基础工程}：已完成Keil MDK工程创建、SysTick配置、非阻塞延时框架与LED闪烁验证。
+    \item \textbf{6.2 实现任务调度器}：基于时间片轮询的协作式调度器已正常运行，支持多个周期任务的注册与调用。
+    \item \textbf{6.3 实现串口驱动}：UART1（调试）和UART2（K210通信）均实现 DMA+空闲中断 接收、环形队列缓存及非阻塞发送。
+    \item \textbf{6.4--6.6 I2C与K210通信}：I2C驱动（还未完成）和K210协议解析状态机已开发完毕。
+    \item \textbf{K210视觉程序}：巡线（\texttt{find\_blobs}）、二维码识别（\texttt{find\_qrcodes}）及二进制协议帧打包已完成并固化到板载Flash，上电自动运行。
+    \item \textbf{系统联调}：K210→STM32→K210的双向串口链路已调通，巡线偏移量与二维码坐标可被STM32正确解析，调试信息通过UART1打印。
+\end{itemize}
+
+\section{分阶段完成的任务详解}
+
+\subsection{6.1 搭建基础工程（无阻塞框架）}
+完成内容：
+\begin{itemize}
+    \item 创建Keil MDK工程，使用STM32F4xx标准外设库。
+    \item 编写 \texttt{main.c} 和 \texttt{stm32f4xx\_it.c}。
+    \item 配置SysTick为1ms中断，实现全局毫秒计数器 \texttt{GetTick()}。
+    \item 实现LED以500ms周期闪烁的非阻塞任务，验证时间基准和调度框架。
+    \item 将时间管理模块独立为 \texttt{bsp\_timer.c/h}，提供 \texttt{nbs\_timer\_t} 结构体及启动/超时判断接口。
+\end{itemize}
+
+\subsection{6.2 实现任务调度器}
+完成内容：
+\begin{itemize}
+    \item 定义任务结构体 \texttt{task\_t}（包含函数指针、调用间隔、上次运行时刻）。
+    \item 实现 \texttt{scheduler\_register()} 和 \texttt{scheduler\_run()}。
+    \item 在主循环中仅调用 \texttt{scheduler\_run()}，成功运行LED闪烁任务和空转任务，验证调度器正常工作。
+\end{itemize}
+
+\subsection{6.3 串口驱动（UART1/UART2）}
+完成内容：
+\begin{itemize}
+    \item \textbf{UART1（调试口）}：PA9(TX)/PA10(RX)，115200-8N1，DMA接收+空闲中断，数据存入环形队列；非阻塞发送使用DMA传输完成中断连续发送。
+    \item \textbf{UART2（K210通信口）}：PD5(TX)/PD6(RX)，配置同UART1，针对K210二进制帧优化接收缓冲区。
+\texttt{    \item 在 \texttt{stm32f4xx\_it.c} 中添加了USART1/2空闲中断、DMA2\_Stream2/7及DMA1\_Stream5/6的中断服务函数。}
+    \item 提供 \texttt{UARTx\_GetChar()}、\texttt{UARTx\_Available()}、\texttt{UARTx\_SendData\_NonBlocking()} 接口。
+    \item 回声测试（\texttt{task\_echo}）通过串口助手验证收发无误。
+\end{itemize}
+
+\subsection{K210视觉程序开发与固化为main.py}
+完成内容：
+\begin{itemize}
+    \item 使用Yahboom CanMV-K210板载OV2640摄像头，设置灰度图QVGA（320×240）。
+    \item 巡线采用 \texttt{find\_blobs} 检测黑色区域，计算偏移量 \texttt{offset = blob.cx() - 160}。
+    \item 二维码识别优先于巡线，使用 \texttt{find\_qrcodes()} 获取中心坐标。
+    \item 自定义二进制帧格式：帧头 \texttt{0xAA 0x55}，帧类型（0x01巡线/0x02二维码），长度，载荷，校验和。打包函数位于 \texttt{k210\_protocol.py}。
+    \item 引脚映射：根据Yahboom CanMV硬件，使用UART1（IO8=TX, IO6=RX）与STM32通信，波特率115200。
+    \item 将 \texttt{main.py} 和 \texttt{k210\_protocol.py} 保存至板载Flash，上电自动运行。设定 \texttt{TEST\_ONLY} 标志可切换连通测试模式与视觉模式。
+\end{itemize}
+
+\subsection{STM32端K210协议解析}
+完成内容：
+\begin{itemize}
+    \item 在 \texttt{k210\_protocol.c/h} 中实现字节级状态机解析器：依次寻找帧头0xAA 0x55，读取类型、长度、载荷、校验和，超时自动复位。
+    \item 提取的巡线偏移量存储于 \texttt{line\_offset}，二维码中心坐标存储于 \texttt{qr\_x, qr\_y}，并提供超时失效机制（200ms/500ms无新数据则清零）。
+    \item 在调度器中注册协议解析任务（每5ms执行）和调试打印任务（每200ms输出一次），通过UART1可观察解析结果。
+\end{itemize}
+
+\section{测试过程中遇到的问题及解决方法}
+
+\subsection{硬件连接与引脚映射错误}
+\textbf{问题描述}：初始代码使用UART2并映射到IO7/IO8，但Yahboom CanMV开发板外扩接口实际对应UART1，且TX固定为IO8，RX为IO6。\\
+\textbf{解决方法}：查阅原理图后，将K210代码改为 \texttt{UART.UART1}，引脚映射改为 \texttt{fm.register(8, fm.fpioa.UART1\_TX)} 和 \texttt{fm.register(6, fm.fpioa.UART1\_RX)}。STM32 UART2 配置为PD5(TX)/PD6(RX)，交叉连接后通信正常。
+
+\subsection{IDE上传文件卡死}
+\textbf{问题描述}：使用MaixPy IDE向K210上传文件时频繁卡死，无法完成脚本保存。\\
+\textbf{解决方法}：更换为CanMV IDE，并采用“保存到CanMV board (as main.py)”功能直接写入Flash。同时发现关闭串口终端、降低上传波特率可大幅提高成功率。最终通过先上传依赖文件，再将主程序保存为 \texttt{main.py}，上电自动运行的方式稳定工作。
+
+\subsection{串口连通性测试无返回数据}
+\textbf{问题描述}：K210以 \texttt{TEST\_ONLY = True} 模式发送 \texttt{K210\_LINK\_TEST} 后，串口终端只见发送，不见STM32回显。\\
+\textbf{解决方法}：
+\begin{enumerate}
+    \item 检查K210自身UART：将TX/RX短接，确认能自发自收，排除K210侧问题。
+    \item 利用STM32的UART1打印调试信息，在 \texttt{task\_echo2} 中加入 \texttt{printf}，确认STM32是否收到数据。最终发现是中断服务函数中未正确清除空闲中断标志，以及DMA流忘记使能中断。修正后双向通信恢复正常。
+\end{enumerate}
+
+\subsection{巡线检测不稳定}
+\textbf{问题描述}：使用 \texttt{get\_regression} 方法时对象不可迭代，改用 \texttt{find\_blobs} 后初期阈值过宽导致面积接近全图，偏移量固定为‑1。\\
+\textbf{解决方法}：在CanMV IDE阈值编辑器中对黑线取样，将阈值收窄为 \texttt{(0,20)}，并设置 \texttt{area\_threshold=100}。调整后黑线面积降至1.5万像素左右，偏移量随黑线移动在‑92$\sim$+99范围内连续变化，检测稳定。
+
+\subsection{协议帧发送频率过高}
+\textbf{问题描述}：主循环 \texttt{sleep\_ms(10)} 使K210以约100Hz频率发送数据，可能造成STM32负载过高。\\
+\textbf{解决方法}：在视觉循环中加入时间间隔判断，仅当距离上次发送超过20ms时才调用发送函数，将有效更新率降至50Hz以内，符合无人机控制需求。
+
+\section{当前系统状态}
+\begin{itemize}
+    \item K210上电自动运行视觉程序，实时检测黑线偏移和二维码坐标。
+    \item STM32通过UART2 DMA+空闲中断无阻塞接收K210二进制帧，解析出巡线偏移和二维码位置，并通过UART1输出可读调试信息。
+    \item 基础时间基准、任务调度器、LED指示等底层模块运行稳定。
+    \item 硬件连接确认无误，通信链路可靠。
+\end{itemize}
+
+\section{代码文件清单}
+
+\subsection{STM32端（标准外设库工程）}
+\begin{itemize}
+    \item \texttt{bsp\_timer.c/h}         —— 系统毫秒计数与非阻塞定时器
+    \item \texttt{bsp\_uart.c/h}          —— UART1（调试）与UART2（K210）DMA驱动
+    \item \texttt{k210\_protocol.c/h}     —— K210二进制协议解析状态机
+    \item \texttt{task\_scheduler.c/h}    —— 协作式任务调度器
+    \item \texttt{bsp\_led.c/h}           —— LED闪烁任务
+    \item \texttt{main.c}                —— 主函数，硬件初始化与任务注册
+    \item \texttt{stm32f4xx\_it.c}        —— 中断服务函数（SysTick、UART、DMA）
+    \item \texttt{stm32f4xx\_conf.h}      —— 外设库配置头文件
+\end{itemize}
+
+\subsection{K210端（MicroPython）}
+\begin{itemize}
+    \item \texttt{main.py}               —— 主程序：摄像头初始化，巡线/二维码检测，模式切换
+    \item \texttt{k210\_protocol.py}      —— 二进制帧打包与发送函数
+\end{itemize}
+
+\section{待解决问题与下一步计划}
+\begin{itemize}
+    \item 编写MPU9250和BMP280的I2C驱动，实现姿态解算（Mahony滤波）。
+    \item 集成VL53L1X激光测距数据，完成高度控制回路。
+    \item 设计PID控制器，根据巡线偏移量生成横滚/偏航指令。
+    \item 实现二维码触发自主降落或悬停的状态机逻辑。
+    \item 在4m$\times$4m场地中进行整机飞行测试，优化参数。
+\end{itemize}
+
+\end{document}
