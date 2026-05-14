@@ -1,5 +1,5 @@
-.\objects\app_vl53l1x_task.o: Middleware\app_vl53l1x_task.c
-.\objects\app_vl53l1x_task.o: Middleware\app_vl53l1x_task.h
+.\objects\app_vl53l1x_task.o: APP\app_vl53l1x_task.c
+.\objects\app_vl53l1x_task.o: APP\app_vl53l1x_task.h
 .\objects\app_vl53l1x_task.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\app_vl53l1x_task.o: .\VL53L1_core\vl53l1_api.h
 .\objects\app_vl53l1x_task.o: .\VL53L1_core\vl53l1_api_strings.h
@@ -23,7 +23,7 @@
 .\objects\app_vl53l1x_task.o: .\VL53L1_platform\vl53l1_platform_ipp_imports.h
 .\objects\app_vl53l1x_task.o: .\VL53L1_platform\vl53l1_platform_user_data.h
 .\objects\app_vl53l1x_task.o: .\VL53L1_core\vl53l1_preset_setup.h
-.\objects\app_vl53l1x_task.o: Middleware\task_scheduler.h
+.\objects\app_vl53l1x_task.o: .\Middleware\task_scheduler.h
 .\objects\app_vl53l1x_task.o: .\BSP\bsp_uart.h
 .\objects\app_vl53l1x_task.o: .\System\bsp_timer.h
 .\objects\app_vl53l1x_task.o: .\BSP\bsp_i2c.h

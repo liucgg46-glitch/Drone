@@ -1,9 +1,9 @@
-.\objects\app_mpu_task.o: Middleware\app_mpu_task.c
-.\objects\app_mpu_task.o: Middleware\app_mpu_task.h
+.\objects\app_mpu_task.o: APP\app_mpu_task.c
+.\objects\app_mpu_task.o: APP\app_mpu_task.h
 .\objects\app_mpu_task.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\app_mpu_task.o: .\Driver\mpu9250.h
 .\objects\app_mpu_task.o: .\Driver\mpu9250_calib.h
-.\objects\app_mpu_task.o: Middleware\task_scheduler.h
+.\objects\app_mpu_task.o: .\Middleware\task_scheduler.h
 .\objects\app_mpu_task.o: .\BSP\bsp_i2c.h
 .\objects\app_mpu_task.o: .\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
 .\objects\app_mpu_task.o: .\libraries\CMSIS\Include\core_cm4.h

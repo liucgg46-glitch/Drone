@@ -27,7 +27,25 @@ Project File Date:  05/14/2026
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\keil5\ARM\ARMCC\Bin'
 Build target 'Drone'
-".\Objects\DroneProject.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+.\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h(11581): warning:  #47-D: incompatible redefinition of macro "DBGMCU_APB2_FZ_DBG_TIM1_STOP"  (declared at line 11574)
+  #define  DBGMCU_APB2_FZ_DBG_TIM1_STOP        DBGMCU_APB1_FZ_DBG_TIM1_STOP    
+.\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h(11582): warning:  #47-D: incompatible redefinition of macro "DBGMCU_APB2_FZ_DBG_TIM8_STOP"  (declared at line 11575)
+  #define  DBGMCU_APB2_FZ_DBG_TIM8_STOP        DBGMCU_APB1_FZ_DBG_TIM8_STOP
+.\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h(11583): warning:  #47-D: incompatible redefinition of macro "DBGMCU_APB2_FZ_DBG_TIM9_STOP"  (declared at line 11576)
+  #define  DBGMCU_APB2_FZ_DBG_TIM9_STOP        DBGMCU_APB1_FZ_DBG_TIM9_STOP
+.\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h(11584): warning:  #47-D: incompatible redefinition of macro "DBGMCU_APB2_FZ_DBG_TIM10_STOP"  (declared at line 11577)
+  #define  DBGMCU_APB2_FZ_DBG_TIM10_STOP       DBGMCU_APB1_FZ_DBG_TIM10_STOP
+.\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h(11585): warning:  #47-D: incompatible redefinition of macro "DBGMCU_APB2_FZ_DBG_TIM11_STOP"  (declared at line 11578)
+  #define  DBGMCU_APB2_FZ_DBG_TIM11_STOP       DBGMCU_APB1_FZ_DBG_TIM11_STOP
+.\Algorithm\mahony.h(251): warning:  #1-D: last line of file ends without a newline
+  #endif
+user\main.c(89): warning:  #177-D: variable "ret"  was declared but never referenced
+      uint8_t ret;
+user\main.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=19300 RO-data=704 RW-data=296 ZI-data=4024  
+".\Objects\DroneProject.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Software Packages used:</h2>
 

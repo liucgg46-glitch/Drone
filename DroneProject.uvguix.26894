@@ -100,8 +100,8 @@
     <MDIClientArea>
       <RegID>0</RegID>
       <MDITabState>
-        <Len>854</Len>
-        <Data>0100000004000000010000000100000001000000010000000000000002000000000000000100000001000000000000002800000028000000010000000A000000070000000100000023443A5C73746D333270726F6A6563745C44726F6E655C4253505C6273705F7370692E6800000000096273705F7370692E6800000000C5D4F200FFFFFFFF23443A5C73746D333270726F6A6563745C44726F6E655C4253505C6273705F7370692E6300000000096273705F7370692E6300000000FFDC7800FFFFFFFF26443A5C73746D333270726F6A6563745C44726F6E655C4472697665725C706D77333930312E680000000009706D77333930312E6800000000BECEA100FFFFFFFF26443A5C73746D333270726F6A6563745C44726F6E655C4472697665725C706D77333930312E630000000009706D77333930312E6300000000F0A0A100FFFFFFFF29443A5C73746D333270726F6A6563745C44726F6E655C757365725C73746D3332663478785F69742E63000000000E73746D3332663478785F69742E6300000000BCA8E100FFFFFFFF33443A5C73746D333270726F6A6563745C44726F6E655C4D6964646C65776172655C6170705F706D77333930315F7461736B2E6800000000126170705F706D77333930315F7461736B2E68000000009CC1B600FFFFFFFF33443A5C73746D333270726F6A6563745C44726F6E655C4D6964646C65776172655C6170705F706D77333930315F7461736B2E6300000000126170705F706D77333930315F7461736B2E6300000000F7B88600FFFFFFFF21443A5C73746D333270726F6A6563745C44726F6E655C757365725C6D61696E2E6300000000066D61696E2E6300000000D9ADC200FFFFFFFF23443A5C73746D333270726F6A6563745C44726F6E655C4253505C6273705F6932632E6300000000096273705F6932632E6300000000A5C2D700FFFFFFFF23443A5C73746D333270726F6A6563745C44726F6E655C4253505C6273705F6932632E6800000000096273705F6932632E6800000000B3A6BE00FFFFFFFF0100000010000000C5D4F200FFDC7800BECEA100F0A0A100BCA8E1009CC1B600F7B88600D9ADC200A5C2D700B3A6BE00EAD6A300F6FA7D00B5E99D005FC3CF00C1838300CACAD500010000000000000002000000F500000066000000A0050000CD020000</Data>
+        <Len>229</Len>
+        <Data>01000000040000000100000001000000010000000100000000000000020000000000000001000000010000000000000028000000280000000100000001000000000000000100000021443A5C73746D333270726F6A6563745C44726F6E655C757365725C6D61696E2E6300000000066D61696E2E6300000000D9ADC200FFFFFFFF0100000010000000C5D4F200FFDC7800BECEA100F0A0A100BCA8E1009CC1B600F7B88600D9ADC200A5C2D700B3A6BE00EAD6A300F6FA7D00B5E99D005FC3CF00C1838300CACAD500010000000000000002000000F500000066000000A0050000CD020000</Data>
       </MDITabState>
     </MDIClientArea>
     <ViewEx>
@@ -1812,93 +1812,12 @@
     <ActiveMDIGroup>0</ActiveMDIGroup>
     <MDIGroup>
       <Size>100</Size>
-      <ActiveTab>7</ActiveTab>
-      <Doc>
-        <Name>.\BSP\bsp_spi.h</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>48</TopLine>
-        <CurrentLine>72</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\BSP\bsp_spi.c</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>337</TopLine>
-        <CurrentLine>361</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\Driver\pmw3901.h</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>80</TopLine>
-        <CurrentLine>104</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\Driver\pmw3901.c</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>470</TopLine>
-        <CurrentLine>494</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\user\stm32f4xx_it.c</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>159</TopLine>
-        <CurrentLine>176</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\Middleware\app_pmw3901_task.h</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>4</TopLine>
-        <CurrentLine>28</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\Middleware\app_pmw3901_task.c</Name>
-        <ColumnNumber>0</ColumnNumber>
-        <TopLine>104</TopLine>
-        <CurrentLine>128</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
+      <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>.\user\main.c</Name>
-        <ColumnNumber>4</ColumnNumber>
-        <TopLine>139</TopLine>
-        <CurrentLine>156</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\BSP\bsp_i2c.c</Name>
-        <ColumnNumber>49</ColumnNumber>
-        <TopLine>225</TopLine>
-        <CurrentLine>248</CurrentLine>
-        <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
-        <PaneID>0</PaneID>
-      </Doc>
-      <Doc>
-        <Name>.\BSP\bsp_i2c.h</Name>
         <ColumnNumber>0</ColumnNumber>
-        <TopLine>27</TopLine>
-        <CurrentLine>51</CurrentLine>
+        <TopLine>132</TopLine>
+        <CurrentLine>136</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>

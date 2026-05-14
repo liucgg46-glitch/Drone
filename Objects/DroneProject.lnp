@@ -49,10 +49,6 @@
 ".\objects\stm32f4xx_it.o"
 ".\objects\bsp_led.o"
 ".\objects\task_scheduler.o"
-".\objects\app_mpu_task.o"
-".\objects\app_bmp280_task.o"
-".\objects\app_vl53l1x_task.o"
-".\objects\app_pmw3901_task.o"
 ".\objects\bsp_uart.o"
 ".\objects\bsp_i2c.o"
 ".\objects\bsp_spi.o"
@@ -84,6 +80,11 @@
 ".\objects\vl53l1_wait.o"
 ".\objects\vl53l1_platform.o"
 ".\objects\vl53l1_platform_init.o"
+".\objects\app_bmp280_task.o"
+".\objects\app_mpu_task.o"
+".\objects\app_pmw3901_task.o"
+".\objects\app_vl53l1x_task.o"
+".\objects\app_attitude_task.o"
 --strict --scatter ".\Objects\DroneProject.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

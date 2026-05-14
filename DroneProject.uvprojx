@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F40_41xxx</Define>
               <Undefine></Undefine>
-              <IncludePath>.\libraries\CMSIS\Device\ST\STM32F4xx\Include;.\libraries\CMSIS\Include;.\libraries\STM32F4xx_StdPeriph_Driver\inc;.\user;.\user\led;.\System;.\Middleware;.\BSP;.\Driver;.\Algorithm;.\VL53L1_core;.\VL53L1_platform</IncludePath>
+              <IncludePath>.\libraries\CMSIS\Device\ST\STM32F4xx\Include;.\libraries\CMSIS\Include;.\libraries\STM32F4xx_StdPeriph_Driver\inc;.\user;.\user\led;.\System;.\Middleware;.\BSP;.\Driver;.\Algorithm;.\VL53L1_core;.\VL53L1_platform;.\APP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -682,46 +682,6 @@
               <FileName>task_scheduler.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Middleware\task_scheduler.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_mpu_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Middleware\app_mpu_task.h</FilePath>
-            </File>
-            <File>
-              <FileName>app_mpu_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Middleware\app_mpu_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_bmp280_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Middleware\app_bmp280_task.h</FilePath>
-            </File>
-            <File>
-              <FileName>app_bmp280_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Middleware\app_bmp280_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_vl53l1x_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Middleware\app_vl53l1x_task.h</FilePath>
-            </File>
-            <File>
-              <FileName>app_vl53l1x_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Middleware\app_vl53l1x_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_pmw3901_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Middleware\app_pmw3901_task.h</FilePath>
-            </File>
-            <File>
-              <FileName>app_pmw3901_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Middleware\app_pmw3901_task.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1137,6 +1097,61 @@
               <FileName>vl53l1_types.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\VL53L1_platform\vl53l1_types.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>APP</GroupName>
+          <Files>
+            <File>
+              <FileName>app_bmp280_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_bmp280_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_bmp280_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_bmp280_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>app_mpu_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_mpu_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_mpu_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_mpu_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>app_pmw3901_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_pmw3901_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_pmw3901_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_pmw3901_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>app_vl53l1x_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_vl53l1x_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_vl53l1x_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_vl53l1x_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>app_attitude_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_attitude_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_attitude_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_attitude_task.h</FilePath>
             </File>
           </Files>
         </Group>

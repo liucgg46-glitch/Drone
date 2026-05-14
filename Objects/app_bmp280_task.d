@@ -1,8 +1,8 @@
-.\objects\app_bmp280_task.o: Middleware\app_bmp280_task.c
-.\objects\app_bmp280_task.o: Middleware\app_bmp280_task.h
+.\objects\app_bmp280_task.o: APP\app_bmp280_task.c
+.\objects\app_bmp280_task.o: APP\app_bmp280_task.h
 .\objects\app_bmp280_task.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\app_bmp280_task.o: .\Driver\bmp280.h
-.\objects\app_bmp280_task.o: Middleware\task_scheduler.h
+.\objects\app_bmp280_task.o: .\Middleware\task_scheduler.h
 .\objects\app_bmp280_task.o: .\BSP\bsp_uart.h
 .\objects\app_bmp280_task.o: .\BSP\bsp_i2c.h
 .\objects\app_bmp280_task.o: .\libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h

@@ -9,10 +9,11 @@
 #include "k210_protocol.h"
 #include "task_scheduler.h"
 #include "app_mpu_task.h"
-#include "bmp280.h"
 #include "app_bmp280_task.h"
 #include "app_vl53l1x_task.h"
 #include "app_pmw3901_task.h"
+#include "app_attitude_task.h"
+
 
 
 // ---------- 外部函数声明 ----------
@@ -130,6 +131,13 @@ int main(void)
 
 //    /* 注册 I2C timeout、校准、DMA读取、调试打印 */
 //    App_MPU9250_RegisterTasks();
+    /* 关键：关闭 MPU 自己的 CAL A/G 打印，避免它清掉 DataAvailable。 */
+    App_MPU9250_SetDebugPrint(0);
+
+    App_Attitude_Init();
+
+    App_MPU9250_RegisterTasks();
+    App_Attitude_RegisterTasks();
 //	
 ////=====================VL53L1X测试=============================		
 	
@@ -143,16 +151,16 @@ int main(void)
 //	App_VL53L1_RegisterTasks();
 
 ////=====================PMW3901测试=============================
-    UART1_SendData_NonBlocking((uint8_t*)"Ding... PMW3901 test\r\n", 23);
+//    UART1_SendData_NonBlocking((uint8_t*)"Ding... PMW3901 test\r\n", 23);
 
-    if (App_PMW3901_Init() != APP_PMW3901_OK) {
-        while (1) {
-            /* 初始化失败：先检查 SPI 接线、CS 引脚、3.3V/GND、SPI mode 3 */
-        }
-    }
+//    if (App_PMW3901_Init() != APP_PMW3901_OK) {
+//        while (1) {
+//            /* 初始化失败：先检查 SPI 接线、CS 引脚、3.3V/GND、SPI mode 3 */
+//        }
+//    }
 
-  
-    App_PMW3901_RegisterTasks();
+//  
+//    App_PMW3901_RegisterTasks();
 	
 	
 //========================================================
