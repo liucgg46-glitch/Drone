@@ -134,14 +134,14 @@ int main(void)
 	
 
 	   /* 只测试一次 ID */
-//  if (App_VL53L1_Init() != APP_VL53L1_OK) {
-//    UART1_SendData_NonBlocking((uint8_t*)"VL53L1 init fail\r\n", 19);
-//    while (1);
-//}
-//  
-//	App_VL53L1_RegisterTasks();
+  if (App_VL53L1_Init() != APP_VL53L1_OK) {
+    UART1_SendData_NonBlocking((uint8_t*)"VL53L1 init fail\r\n", 19);
+    while (1);
+}
+  
+	App_VL53L1_RegisterTasks();
 
-//	
+	
 //========================================================
     while (1) {
         scheduler_run();
