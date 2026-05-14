@@ -12,6 +12,7 @@
 #include "bmp280.h"
 #include "app_bmp280_task.h"
 #include "app_vl53l1x_task.h"
+#include "app_pmw3901_task.h"
 
 
 // ---------- 外部函数声明 ----------
@@ -103,44 +104,56 @@ int main(void)
     scheduler_register(&echo_task1);
 	
 //====================BMP读取数据测试==============================
-    UART1_SendData_NonBlocking((uint8_t*)"Ding...\r\n", 9);
+//    UART1_SendData_NonBlocking((uint8_t*)"Ding...\r\n", 9);
 
-    if (App_BMP280_Init() != BMP280_OK) {
+//    if (App_BMP280_Init() != BMP280_OK) {
+//        while (1) {
+//            /* BMP280 初始化失败，先停在这里排查接线/地址 */
+//        }
+//    }
+
+//    App_BMP280_RegisterTasks();
+
+//	
+////====================MPU读取数据测试==============================	
+//    /* 先初始化 MPU，再启动校准 */
+//    ret = App_MPU9250_InitAndCalibrate(GYRO_FS_500,
+//                                       ACCEL_FS_4,
+//                                       500,
+//                                       MPU9250_CALIB_MODE_GYRO_ACCEL_LEVEL);
+//    if (ret == 0) {
+//        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init OK, calibrating...\r\n", 32);
+//    } else {
+//        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init/calib fail\r\n", 26);
+//        while (1);
+//    }
+
+//    /* 注册 I2C timeout、校准、DMA读取、调试打印 */
+//    App_MPU9250_RegisterTasks();
+//	
+////=====================VL53L1X测试=============================		
+	
+
+//	   /* 只测试一次 ID */
+//  if (App_VL53L1_Init() != APP_VL53L1_OK) {
+//    UART1_SendData_NonBlocking((uint8_t*)"VL53L1 init fail\r\n", 19);
+//    while (1);
+//}
+//  
+//	App_VL53L1_RegisterTasks();
+
+////=====================PMW3901测试=============================
+    UART1_SendData_NonBlocking((uint8_t*)"Ding... PMW3901 test\r\n", 23);
+
+    if (App_PMW3901_Init() != APP_PMW3901_OK) {
         while (1) {
-            /* BMP280 初始化失败，先停在这里排查接线/地址 */
+            /* 初始化失败：先检查 SPI 接线、CS 引脚、3.3V/GND、SPI mode 3 */
         }
     }
 
-    App_BMP280_RegisterTasks();
-
-	
-//====================MPU读取数据测试==============================	
-    /* 先初始化 MPU，再启动校准 */
-    ret = App_MPU9250_InitAndCalibrate(GYRO_FS_500,
-                                       ACCEL_FS_4,
-                                       500,
-                                       MPU9250_CALIB_MODE_GYRO_ACCEL_LEVEL);
-    if (ret == 0) {
-        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init OK, calibrating...\r\n", 32);
-    } else {
-        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init/calib fail\r\n", 26);
-        while (1);
-    }
-
-    /* 注册 I2C timeout、校准、DMA读取、调试打印 */
-    App_MPU9250_RegisterTasks();
-	
-//=====================VL53L1X测试=============================		
-	
-
-	   /* 只测试一次 ID */
-  if (App_VL53L1_Init() != APP_VL53L1_OK) {
-    UART1_SendData_NonBlocking((uint8_t*)"VL53L1 init fail\r\n", 19);
-    while (1);
-}
   
-	App_VL53L1_RegisterTasks();
-
+    App_PMW3901_RegisterTasks();
+	
 	
 //========================================================
     while (1) {
