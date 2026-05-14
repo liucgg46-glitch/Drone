@@ -16,8 +16,8 @@
         <TargetCommonOption>
           <Device>STM32F407ZG</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.17.0</PackID>
-          <PackURL>https://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.1.0.8</PackID>
+          <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -184,8 +184,6 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
-            <RvdsMve>0</RvdsMve>
-            <RvdsCdeCp>0</RvdsCdeCp>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -326,7 +324,6 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -352,7 +349,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>4</ClangAsOpt>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -822,14 +819,84 @@
           <GroupName>Algorithm</GroupName>
           <Files>
             <File>
-              <FileName>mahony.h</FileName>
+              <FileName>ahrs_fusion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\ahrs_fusion.c</FilePath>
+            </File>
+            <File>
+              <FileName>ahrs_fusion.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Algorithm\mahony.h</FilePath>
+              <FilePath>.\Algorithm\ahrs_fusion.h</FilePath>
+            </File>
+            <File>
+              <FileName>altitude_ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\altitude_ctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>altitude_ctrl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\altitude_ctrl.h</FilePath>
+            </File>
+            <File>
+              <FileName>attitude_ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\attitude_ctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>attitude_ctrl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\attitude_ctrl.h</FilePath>
+            </File>
+            <File>
+              <FileName>lowpass.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\lowpass.c</FilePath>
+            </File>
+            <File>
+              <FileName>lowpass.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\lowpass.h</FilePath>
             </File>
             <File>
               <FileName>mahony.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Algorithm\mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\mahony.h</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\pid.h</FilePath>
+            </File>
+            <File>
+              <FileName>position_ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\position_ctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>position_ctrl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\position_ctrl.h</FilePath>
+            </File>
+            <File>
+              <FileName>quaternion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Algorithm\quaternion.c</FilePath>
+            </File>
+            <File>
+              <FileName>quaternion.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Algorithm\quaternion.h</FilePath>
             </File>
           </Files>
         </Group>
