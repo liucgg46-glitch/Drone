@@ -15,6 +15,7 @@
 #include "app_pmw3901_task.h"
 #include "app_attitude_task.h"
 #include "bsp_pwm.h"
+#include "app_rc_task.h"
 
 // ---------- 外部函数声明 ----------
 extern void task_led_blink(void);
@@ -82,24 +83,6 @@ void task_debug_print(void) {
     }
 }
 
-
-//=================PWM测试==================
-//static void SoftDelay(volatile uint32_t t)
-//{
-//    while (t--)
-//    {
-//        __NOP();
-//    }
-//}
-
-//static void UART1_SendString(const char *s)
-//{
-//    UART1_SendData_NonBlocking((uint8_t *)s, (uint16_t)strlen(s));
-//}
-//=================PWM测试==================
-
-   
-
 // ---------- 主函数 ----------
 int main(void)
 {
@@ -120,78 +103,28 @@ int main(void)
 	
 	scheduler_register(&task_led);
     scheduler_register(&echo_task1);
+
 	
-//====================BMP读取数据测试==============================
-//    UART1_SendData_NonBlocking((uint8_t*)"Ding...\r\n", 9);
+//====================遥控器测试===========================
+    App_RC_Init();
 
-//    if (App_BMP280_Init() != BMP280_OK) {
-//        while (1) {
-//            /* BMP280 初始化失败，先停在这里排查接线/地址 */
-//        }
-//    }
+    App_RC_MotorTest_Init();
+    App_RC_MotorTest_Enable(1);
 
-//    App_BMP280_RegisterTasks();
-////====================MPU读取数据测试==============================	
-    /* 先初始化 MPU，再启动校准 */
-//    ret = App_MPU9250_InitAndCalibrate(GYRO_FS_500,
-//                                       ACCEL_FS_4,
-//                                       500,
-//                                       MPU9250_CALIB_MODE_GYRO_ACCEL_LEVEL);
-//    if (ret == 0) {
-//        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init OK, calibrating...\r\n", 32);
-//    } else {
-//        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init/calib fail\r\n", 26);
-//        while (1);
-//    }
+    App_RC_SetDebugPrint(1);
+    App_RC_RegisterTasks();
 
-//    /* 注册 I2C timeout、校准、DMA读取、调试打印 */
-//   
-//    /* 关键：关闭 MPU 自己的 CAL A/G 打印，避免它清掉 DataAvailable。 */
-//    App_MPU9250_SetDebugPrint(0);
+    scheduler_register(&task_led);
 
-//    App_Attitude_Init();
+    UART1_SendData_NonBlocking((uint8_t *)"RC motor test start\r\n", 21);
 
-//    App_MPU9250_RegisterTasks();
-//    App_Attitude_RegisterTasks();
-//	
-////=====================VL53L1X测试=============================		
-//	   /* 只测试一次 ID */
-//  if (App_VL53L1_Init() != APP_VL53L1_OK) {
-//    UART1_SendData_NonBlocking((uint8_t*)"VL53L1 init fail\r\n", 19);
-//    while (1);
-//}
-//  
-//	App_VL53L1_RegisterTasks();
 
-////=====================PMW3901测试=============================
-//    UART1_SendData_NonBlocking((uint8_t*)"Ding... PMW3901 test\r\n", 23);
-//    if (App_PMW3901_Init() != APP_PMW3901_OK) {
-//        while (1) {
-//            /* 初始化失败：先检查 SPI 接线、CS 引脚、3.3V/GND、SPI mode 3 */
-//        }
-//    }
-//  
-//    App_PMW3901_RegisterTasks();
-//====================PWM测试===========================
-//	PWM_Init();
-
-//    UART1_SendString("\r\nPWM test start\r\n");
-
-//    /*
-//     * 第一步：固定 1000us。
-//     * 这时电调应该是最低油门，电机不转。
-//     */
-//    PWM_SetAllMotorUs(1000, 1000, 1000, 1000);
-//    UART1_SendString("M1= 1100us\r\n");
-//====================PWM测试===========================
+//=========================================================
 	
 	
     while (1) {
         scheduler_run();
 		
-//====================PWM测试===========================
-//		SoftDelay(12000000);
-//====================PWM测试===========================
     }
 }
 

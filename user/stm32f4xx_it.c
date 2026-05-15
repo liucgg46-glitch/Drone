@@ -174,7 +174,17 @@ void DMA2_Stream3_IRQHandler(void)
     SPI1_DMA_IRQHandler_TX();
 }
 
+//=======================遥控器测试================
+#include "bsp_rc_pwm.h"
+void TIM3_IRQHandler(void)
+{
+    RC_PWM_TIM3_IRQHandler();
+}
 
+void TIM4_IRQHandler(void)
+{
+    RC_PWM_TIM4_IRQHandler();
+}
 
 
 

@@ -728,6 +728,16 @@
               <FileType>5</FileType>
               <FilePath>.\BSP\bsp_pwm.h</FilePath>
             </File>
+            <File>
+              <FileName>bsp_rc_pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\BSP\bsp_rc_pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_rc_pwm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\BSP\bsp_rc_pwm.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1172,6 +1182,16 @@
               <FileName>app_rate_test_task.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\APP\app_rate_test_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>app_rc_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_rc_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_rc_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_rc_task.h</FilePath>
             </File>
           </Files>
         </Group>
