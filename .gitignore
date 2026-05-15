@@ -13,11 +13,14 @@ Listings/
 *.hex
 *.bin
 *.elf
-
-# Keil temp files
-*.bak
 *.dep
+
+# Keil user/temp files
+*.bak
 *.uvguix.*
+*.uvgui.*
+*.uvoptx
+*.uvopt
 
 # Debug files
 JLinkLog.txt
@@ -29,4 +32,3 @@ Desktop.ini
 
 # VS Code
 .vscode/
-Githubproject/Drone_F407/
