@@ -1,40 +1,198 @@
-#include "stm32f4xx.h"
-#include "bsp_uart.h"
-#include "bsp_pwm.h"
+#include "bsp_timer.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+#include "stm32f4xx.h"
+#include "bsp_led.h"
+#include "bsp_uart.h"
+#include "bsp_i2c.h"
+#include "k210_protocol.h"
+#include "task_scheduler.h"
+#include "app_mpu_task.h"
+#include "bmp280.h"
+#include "app_bmp280_task.h"
+#include "app_vl53l1x_task.h"
+#include "app_pmw3901_task.h"
+#include "app_attitude_task.h"
+#include "bsp_pwm.h"
 
-static void SoftDelay(volatile uint32_t t)
-{
-    while (t--)
-    {
-        __NOP();
+// ---------- 外部函数声明 ----------
+extern void task_led_blink(void);
+
+
+// ---------- 任务声明 ----------
+void task_echo1(void);
+void task_echo2(void);
+void task_led_blink(void);
+void task_debug_print(void);
+
+// ---------- 任务结构体 ----------
+task_t echo_task1 = {
+    .func = task_echo1,
+    .interval_ms = 5,
+    .last_run = 0
+};
+task_t echo_task2 = {
+    .func = task_echo2,
+    .interval_ms = 5,
+    .last_run = 0
+};
+task_t task_led = {
+    .func = task_led_blink,
+    .interval_ms = 500,
+    .last_run = 0
+};
+task_t task_debug = {
+    .func = task_debug_print,
+    .interval_ms = 200,
+    .last_run = 0
+};
+
+// ---------- 原有任务 ----------
+void task_echo1(void) {
+    uint8_t ch;
+    while (UART1_GetChar(&ch)) {
+        UART1_SendData_NonBlocking(&ch, 1);
     }
 }
 
-static void UART1_SendString(const char *s)
-{
-    UART1_SendData_NonBlocking((uint8_t *)s, (uint16_t)strlen(s));
+void task_echo2(void) {
+    K210_ParseTask();
 }
 
+void task_debug_print(void) {
+    static uint32_t last_print = 0;
+    const k210_data_t *data;
+    char buf[64];
+
+    if (GetTick() - last_print < 200) return;
+    last_print = GetTick();
+
+    data = K210_GetData();
+    if (data->line_valid) {
+        snprintf(buf, sizeof(buf), "LINE: offset=%d\r\n", (int)data->line_offset);
+        UART1_SendData_NonBlocking((uint8_t*)buf, strlen(buf));
+    }
+    if (data->qr_valid) {
+        snprintf(buf, sizeof(buf), "QR: x=%d y=%d\r\n", (int)data->qr_x, (int)data->qr_y);
+        UART1_SendData_NonBlocking((uint8_t*)buf, strlen(buf));
+    }
+    if (!data->line_valid && !data->qr_valid) {
+        UART1_SendData_NonBlocking((uint8_t*)"No valid data\r\n", 15);
+    }
+}
+
+
+//=================PWM测试==================
+//static void SoftDelay(volatile uint32_t t)
+//{
+//    while (t--)
+//    {
+//        __NOP();
+//    }
+//}
+
+//static void UART1_SendString(const char *s)
+//{
+//    UART1_SendData_NonBlocking((uint8_t *)s, (uint16_t)strlen(s));
+//}
+//=================PWM测试==================
+
+   
+
+// ---------- 主函数 ----------
 int main(void)
 {
+    uint8_t ret;
+
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 
+    led_init();
     UART1_Init();
-    PWM_Init();
+    UART2_Init();
+    K210_Init();
+    I2C1_Init();
 
-    UART1_SendString("\r\nPWM test start\r\n");
+    if (SysTick_Config(SystemCoreClock / 1000)) {
+        while (1);
+    }
+    __enable_irq();
+	
+	scheduler_register(&task_led);
+    scheduler_register(&echo_task1);
+	
+//====================BMP读取数据测试==============================
+//    UART1_SendData_NonBlocking((uint8_t*)"Ding...\r\n", 9);
 
-    /*
-     * 第一步：固定 1000us。
-     * 这时电调应该是最低油门，电机不转。
-     */
-    PWM_SetAllMotorUs(1100, 1000, 1000, 1000);
-    UART1_SendString("PWM all = 1000us\r\n");
+//    if (App_BMP280_Init() != BMP280_OK) {
+//        while (1) {
+//            /* BMP280 初始化失败，先停在这里排查接线/地址 */
+//        }
+//    }
 
-    while (1)
-    {
-        SoftDelay(12000000);
+//    App_BMP280_RegisterTasks();
+////====================MPU读取数据测试==============================	
+    /* 先初始化 MPU，再启动校准 */
+//    ret = App_MPU9250_InitAndCalibrate(GYRO_FS_500,
+//                                       ACCEL_FS_4,
+//                                       500,
+//                                       MPU9250_CALIB_MODE_GYRO_ACCEL_LEVEL);
+//    if (ret == 0) {
+//        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init OK, calibrating...\r\n", 32);
+//    } else {
+//        UART1_SendData_NonBlocking((uint8_t*)"MPU9250 init/calib fail\r\n", 26);
+//        while (1);
+//    }
+
+//    /* 注册 I2C timeout、校准、DMA读取、调试打印 */
+//   
+//    /* 关键：关闭 MPU 自己的 CAL A/G 打印，避免它清掉 DataAvailable。 */
+//    App_MPU9250_SetDebugPrint(0);
+
+//    App_Attitude_Init();
+
+//    App_MPU9250_RegisterTasks();
+//    App_Attitude_RegisterTasks();
+//	
+////=====================VL53L1X测试=============================		
+//	   /* 只测试一次 ID */
+//  if (App_VL53L1_Init() != APP_VL53L1_OK) {
+//    UART1_SendData_NonBlocking((uint8_t*)"VL53L1 init fail\r\n", 19);
+//    while (1);
+//}
+//  
+//	App_VL53L1_RegisterTasks();
+
+////=====================PMW3901测试=============================
+//    UART1_SendData_NonBlocking((uint8_t*)"Ding... PMW3901 test\r\n", 23);
+//    if (App_PMW3901_Init() != APP_PMW3901_OK) {
+//        while (1) {
+//            /* 初始化失败：先检查 SPI 接线、CS 引脚、3.3V/GND、SPI mode 3 */
+//        }
+//    }
+//  
+//    App_PMW3901_RegisterTasks();
+//====================PWM测试===========================
+//	PWM_Init();
+
+//    UART1_SendString("\r\nPWM test start\r\n");
+
+//    /*
+//     * 第一步：固定 1000us。
+//     * 这时电调应该是最低油门，电机不转。
+//     */
+//    PWM_SetAllMotorUs(1000, 1000, 1000, 1000);
+//    UART1_SendString("M1= 1100us\r\n");
+//====================PWM测试===========================
+	
+	
+    while (1) {
+        scheduler_run();
+		
+//====================PWM测试===========================
+//		SoftDelay(12000000);
+//====================PWM测试===========================
     }
 }
+
+
