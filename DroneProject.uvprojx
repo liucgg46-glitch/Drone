@@ -689,19 +689,14 @@
           <GroupName>BSP</GroupName>
           <Files>
             <File>
-              <FileName>bsp_uart.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\BSP\bsp_uart.h</FilePath>
-            </File>
-            <File>
               <FileName>bsp_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\BSP\bsp_uart.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_i2c.h</FileName>
+              <FileName>bsp_uart.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\BSP\bsp_i2c.h</FilePath>
+              <FilePath>.\BSP\bsp_uart.h</FilePath>
             </File>
             <File>
               <FileName>bsp_i2c.c</FileName>
@@ -709,14 +704,29 @@
               <FilePath>.\BSP\bsp_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_spi.h</FileName>
+              <FileName>bsp_i2c.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\BSP\bsp_spi.h</FilePath>
+              <FilePath>.\BSP\bsp_i2c.h</FilePath>
             </File>
             <File>
               <FileName>bsp_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\BSP\bsp_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_spi.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\BSP\bsp_spi.h</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\BSP\bsp_pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_pwm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\BSP\bsp_pwm.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1152,6 +1162,16 @@
               <FileName>app_attitude_task.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\APP\app_attitude_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>app_rate_test_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_rate_test_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_rate_test_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_rate_test_task.h</FilePath>
             </File>
           </Files>
         </Group>
