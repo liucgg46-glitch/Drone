@@ -1196,6 +1196,16 @@
               <FileType>5</FileType>
               <FilePath>.\APP\app_rc_task.h</FilePath>
             </File>
+            <File>
+              <FileName>app_angle_test_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\app_angle_test_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_angle_test_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\APP\app_angle_test_task.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
